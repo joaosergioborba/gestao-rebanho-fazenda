@@ -1,0 +1,121 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Usuario {
+  id            String   @id @default(uuid())
+  nome          String
+  email         String   @unique
+  senha         String
+  data_criacao  DateTime @default(now())
+  usuario_ativo Boolean  @default(true)
+  fazendas Fazenda[]
+
+  @@map("usuarios")
+}
+
+model Animal {
+  id                   Int                 @id @default(autoincrement())
+  nome                 String              @db.VarChar(225)
+  brinco_id            Int?                @unique
+  data_nascimento      DateTime            @db.Timestamp(6)
+  raca                 String
+  sexo                 Sexo
+  url_foto             String?
+  pertence_a_fazenda   Boolean             @default(true)
+  status               StatusVida
+  mae_id               Int?
+  mae                  Animal?             @relation("MaeParaCrias", fields: [mae_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  crias_como_mae       Animal[]            @relation("MaeParaCrias")
+  pai_id               Int?
+  pai                  Animal?             @relation("PaiParaCrias", fields: [pai_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  crias_como_pai       Animal[]            @relation("PaiParaCrias")
+  ativo                Boolean             @default(true)
+  data_criacao         DateTime            @default(now())
+  lote_id              Int?
+  lote                 Lote?               @relation(fields: [lote_id], references: [id])
+  eventos_reprodutivos EventoReprodutivo[]
+  eventos_saude        EventoSaude[]
+  fazendaId Int?
+  fazenda Fazenda? @relation(fields: [fazendaId], references: [id])
+
+  
+
+  @@map("animais")
+}
+
+model Lote {
+  id        Int      @id @default(autoincrement())
+  nome      String    @db.VarChar(255)
+  descricao String?
+  ativo     Boolean  @default(true)
+  fazendaId Int 
+  fazenda Fazenda @relation(fields: [fazendaId], references: [id])
+  animais   Animal[]
+  foto_url String?
+
+  @@map("lotes") 
+}
+
+model Fazenda {
+  id Int @id @default(autoincrement())
+  nome String @db.VarChar(225)
+  descricao String?
+  cidade String?
+  estado String?
+  ativo Boolean @default(true)
+
+  usuarioId String
+  usuario Usuario @relation(fields: [usuarioId], references:[id])
+  foto_url String?
+
+  lotes Lote[]
+  animais Animal[]
+
+  @@map("fazendas")
+
+}
+
+model EventoSaude {
+  id                Int      @id @default(autoincrement())
+  tipo_evento       String
+  data_evento       DateTime
+  produto_utilizado String?
+  dosagem           String?
+  observacoes       String?
+  animal_id         Int
+  ativo             Boolean  @default(true)
+  animal            Animal   @relation(fields: [animal_id], references: [id], onDelete: Cascade)
+
+  @@map("eventos_saude")
+}
+
+model EventoReprodutivo {
+  id          Int      @id @default(autoincrement())
+  tipo_evento String
+  data_evento DateTime
+  resultado   String?
+  observacoes String?
+  animal_id   Int
+  animal      Animal   @relation(fields: [animal_id], references: [id], onDelete: Cascade)
+
+  @@map("eventos_reprodutivos")
+}
+
+enum Sexo {
+  MACHO
+  FEMEA
+}
+
+enum StatusVida {
+  VIVO
+  ABATIDO
+  MORTO
+  VENDIDO
+}
