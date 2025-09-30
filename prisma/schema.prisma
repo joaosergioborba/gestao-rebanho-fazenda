@@ -19,6 +19,11 @@ model Usuario {
 
   @@map("usuarios")
 }
+enum TipoParicao {
+  RETARDADA
+  NORMAL
+  ACELERADA
+}
 
 model Animal {
   id                   Int                 @id @default(autoincrement())
@@ -27,12 +32,15 @@ model Animal {
   data_nascimento      DateTime            @db.Timestamp(6)
   raca                 String
   sexo                 Sexo
+  paricao              TipoParicao?
+  escore               Int?
+  pelagem              String?
   url_foto             String?
   pertence_a_fazenda   Boolean             @default(true)
   status               StatusVida
   mae_id               Int?
   mae                  Animal?             @relation("MaeParaCrias", fields: [mae_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  crias_como_mae       Animal[]            @relation("MaeParaCrias")
+  crias_consocomo_mae       Animal[]            @relation("MaeParaCrias")
   pai_id               Int?
   pai                  Animal?             @relation("PaiParaCrias", fields: [pai_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   crias_como_pai       Animal[]            @relation("PaiParaCrias")
@@ -44,6 +52,8 @@ model Animal {
   eventos_saude        EventoSaude[]
   fazendaId Int?
   fazenda Fazenda? @relation(fields: [fazendaId], references: [id])
+  evento_parto_id     Int?     @unique
+  evento_parto        EventoReprodutivo? @relation("nascimento", fields: [evento_parto_id], references: [id])
 
   
 
@@ -82,9 +92,19 @@ model Fazenda {
 
 }
 
+enum TipoEventoSaude {
+  VACINA
+  VERMIFUGO
+  TRATAMENTO
+  EXAME
+  CIRURGIA
+  OUTRO 
+}
+
 model EventoSaude {
   id                Int      @id @default(autoincrement())
-  tipo_evento       String
+  tipo_evento       TipoEventoSaude
+  descricao_Evento  String?
   data_evento       DateTime
   produto_utilizado String?
   dosagem           String?
@@ -96,16 +116,49 @@ model EventoSaude {
   @@map("eventos_saude")
 }
 
+enum TipoEventoReprodutivo {
+  CIO           
+  COBERTURA     
+  INSEMINACAO   
+  DIAGNOSTICO_GESTAO
+  PARTO
+  ABORTO
+  OUTRO
+}
+
 model EventoReprodutivo {
   id          Int      @id @default(autoincrement())
-  tipo_evento String
+  tipo_evento TipoEventoReprodutivo
+  descricao_evento  String?
   data_evento DateTime
   resultado   String?
   observacoes String?
+  finalidade  FinalidadesBezerros?
+  finalidade_descricao  String?
+  lua         Lua?
   animal_id   Int
   animal      Animal   @relation(fields: [animal_id], references: [id], onDelete: Cascade)
-
+  bezerro_nascido Animal? @relation("nascimento")
   @@map("eventos_reprodutivos")
+}
+enum FinalidadesBezerros {
+  RECRIA
+  ENGORDA
+  REPRODUCAO
+  SEMEN
+  REPOSICAO_MATRIZES
+  LEITE
+  ABATE
+  VENDA_BEZERRO
+  OUTROS
+  
+}
+
+enum Lua {
+ NOVA
+ MINGUANTE
+ CHEIA
+ CRESCENTE
 }
 
 enum Sexo {

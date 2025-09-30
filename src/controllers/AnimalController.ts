@@ -4,6 +4,7 @@ import {
   buscarAnimalPorBrincoId,
   cadastrarAnimal,
   deletarAnimalPorId,
+  listarFilhos,
   TodosAnimaisAtivos,
 } from "../services/AnimalService";
 import { Sexo, StatusVida } from "../../generated/prisma";
@@ -139,6 +140,11 @@ export async function cadastrar(req: Request, res: Response) {
 export async function atualizar(req: Request, res: Response) {
   try {
     const dadosParaAtualizar = req.body;
+    if (!dadosParaAtualizar.id && !dadosParaAtualizar.brinco_id) {
+      res.status(400).json({
+        erro: "O id do animal ou o brinco id deve ser informado! obs: caso seja informado os dois, eses devem ser do mesmo animal!",
+      });
+    }
     const dadosAtulizados = await atualizarCadastroAnimal(dadosParaAtualizar);
 
     res.status(201).json(dadosAtulizados);
@@ -202,4 +208,19 @@ export async function deleteCadastroAnimalPorBricoId(
     }
     res.status(500).json({ error: "Erro interno no servidor" });
   }
+}
+
+export async function listarFilhosController(req: Request, res: Response) {
+  try {
+    const paisId = Number(req.params.paisID);
+    console.log(paisId);
+    if (!paisId) {
+      res
+        .status(400)
+        .json({ erro: "O id do pai ou da mãe deve ser informado" });
+      return;
+    }
+    const filhos = await listarFilhos(paisId);
+    res.status(200).json(filhos);
+  } catch (error) {}
 }

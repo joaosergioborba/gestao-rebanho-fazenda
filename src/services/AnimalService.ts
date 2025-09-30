@@ -1,5 +1,10 @@
 import { withAccelerate } from "@prisma/extension-accelerate";
-import { PrismaClient, Sexo, StatusVida } from "../../generated/prisma";
+import {
+  PrismaClient,
+  Sexo,
+  StatusVida,
+  TipoParicao,
+} from "../../generated/prisma";
 import { Prisma } from "@prisma/client";
 
 const prisma = new PrismaClient().$extends(withAccelerate());
@@ -35,19 +40,25 @@ export async function buscarAnimalPorBrincoId(brinco_id: number) {
 }
 
 export type CreateAnimalData = {
-  id: number;
+  id?: number | null;
   nome: string;
-  brinco_id?: number;
+  brinco_id?: number | null;
   data_nascimento: Date;
   raca: string;
   sexo: Sexo;
-  url_foto?: string;
-  pertence_a_fazenda?: boolean;
-  status?: StatusVida;
-  lote_id?: number;
-  mae_id?: number;
-  pai_id?: number;
-  fazendaId?: number;
+  paricao: TipoParicao | null;
+  escore: number | null;
+  pelagem: String | null;
+  url_foto?: string | null;
+  pertence_a_fazenda?: boolean | null;
+  status?: StatusVida | null;
+  lote_id?: number | null;
+  mae_id?: number | null;
+  pai_id?: number | null;
+  fazendaId?: number | null;
+  eventos_reprodutivos?: never;
+  eventos_saude?: never;
+  evento_parto_id: number | null;
 };
 
 export async function cadastrarAnimal(data: CreateAnimalData) {
@@ -81,9 +92,12 @@ export async function cadastrarAnimal(data: CreateAnimalData) {
     throw new Error("A_FAZENDA_INFORMADA_NAO_EXISTE");
   }
 
-  const brincoIdJaCadastrado = await prisma.animal.findUnique({
-    where: { brinco_id: data.brinco_id },
-  });
+  let brincoIdJaCadastrado;
+  if (data.brinco_id) {
+    brincoIdJaCadastrado = await prisma.animal.findUnique({
+      where: { brinco_id: data.brinco_id },
+    });
+  }
 
   if (brincoIdJaCadastrado) {
     throw new Error("BRINCO_JA_CADASTRADO");
@@ -205,4 +219,24 @@ export async function deletarAnimalPorBrincoId(brinco_id: number) {
   });
 
   return animalDesativado;
+}
+
+export async function listarFilhos(paisId: number) {
+  if (!paisId) {
+    throw new Error("MAE_ID_OU_PAI_ID_DEVE_SER_INFORMADO");
+  }
+  const pais = await prisma.animal.findUnique({ where: { id: paisId } });
+  if (!pais) {
+    throw new Error("ID_INFORMADO_INVALIDO");
+  }
+  const sexoPais = pais?.sexo;
+  if (sexoPais === "MACHO") {
+    const filhos = await prisma.animal.findMany({ where: { pai_id: paisId } });
+    return filhos;
+  } else if (sexoPais === "FEMEA") {
+    const filhos = await prisma.animal.findMany({ where: { mae_id: paisId } });
+    return filhos;
+  } else {
+    throw new Error("Erro no servidor");
+  }
 }
