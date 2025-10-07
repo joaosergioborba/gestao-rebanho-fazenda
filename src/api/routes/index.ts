@@ -1,4 +1,5 @@
 import { Router } from "express";
+import validarToken from "../middleware/autenticarToken";
 //import usuarioRoutes from "./usuario.routes";
 import usuarioRoutes from "./rotasUsuarios";
 import animaisRouter from "./rotasAnimais";
@@ -9,9 +10,9 @@ const router = Router();
 
 // agrupar módulos
 router.use("/usuario", usuarioRoutes);
-router.use("/animal", animaisRouter);
-router.use("/lote", lotesRouter);
-router.use("/evento", eventosRouter);
-router.use("/fazenda", fazendasRouter);
+router.use("/animal", validarToken, animaisRouter);
+router.use("/lote", validarToken, lotesRouter);
+router.use("/evento", validarToken, eventosRouter);
+router.use("/fazenda", validarToken, fazendasRouter);
 
 export default router;

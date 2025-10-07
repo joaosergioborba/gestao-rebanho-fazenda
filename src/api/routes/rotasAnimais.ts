@@ -9,6 +9,7 @@ import {
   deleteCadastroAnimalPorId,
   listarFilhosController,
 } from "../../controllers/AnimalController";
+import validarToken from "../middleware/autenticarToken";
 
 const router = Router();
 

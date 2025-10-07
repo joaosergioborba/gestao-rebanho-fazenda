@@ -6,13 +6,13 @@ import {
   pesquisarPorId,
   pesquisarPorEmail,
 } from "../../controllers/UsuarioController";
-
+import validarToken from "../middleware/autenticarToken";
 const router = Router();
 
 router.post("/cadastro", cadastrar);
 router.post("/login", autenticarLogin);
-router.get("/usuarios-ativos", usuariosAtivos);
-router.get("/selecionar-por-email/:email", pesquisarPorEmail);
-router.get("/selecionar-por-id/:id", pesquisarPorId);
+router.get("/usuarios-ativos", validarToken, usuariosAtivos);
+router.get("/selecionar-por-email/:email", validarToken, pesquisarPorEmail);
+router.get("/selecionar-por-id/:id", validarToken, pesquisarPorId);
 
 export default router;
