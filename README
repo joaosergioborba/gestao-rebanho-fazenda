@@ -3,4 +3,17 @@
 ############## SOBRE #############################
 O desenvolvimento desse sistema surgiu com base em uma necessidade real. Moro em uma cidade pequena e com economia predominantemente do agronegocio. Nesse sentido, a pequena agricultura e a agricultura familiar é predonante na região. Assim, os agricultores, geralmente, fazem um controle manual de seus negocios. Nesse sentido, estou desenvolvendo uma aplicação open source para automatizar a gestão do rebanho, como controle de nascimento, compra, venda e abate.
 
-Inicialmente o projeto começou com um sistema de controle em Excel, no entanto era muito limitado e acabou não atendendo a necessidade. Assim, passei a desenvolver em javascript (typescript) e banco de dados PostGree.
+Inicialmente o projeto começou com um sistema de controle em Excel, no entanto era muito limitado e acabou não atendendo a necessidade. Assim, passei a desenvolver em javascript (typescript) e banco de dados PostgreSQL.
+
+####### Tecnologias usadas ############
+Typescript;
+Express;
+Node.js;
+PostgreSQL;
+Prisma;
+JWT;
+
+####### Versões #######################
+-- main -> Foi feito o desenvolvimento geral da aplicação
+-- versao_2.0 -> implementação do JWT para controlar o acesso a api atravez de token de autenticação, garantindo que usuarios não autorizados não acesse o
+####### Documentação ##################
